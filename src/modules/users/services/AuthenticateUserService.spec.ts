@@ -1,10 +1,12 @@
 import AppError from '@shared/errors/AppError';
 import FakeUsersRepository from '../repositories/fakes/FakeUsersRepository';
+import FakeRefreshTokensRepository from '../repositories/fakes/FakeRefreshTokensRepository';
 import AuthenticateUserService from './AuthenticateUserService';
 import FakeHashProvider from '../providers/HashProvider/fakes/FakeHashProvider';
 import CreateUserService from './CreateUserService';
 
 let fakeUsersRepository: FakeUsersRepository;
+let fakeRefreshTokensRepository: FakeRefreshTokensRepository;
 let fakeHashProvider: FakeHashProvider;
 let authenticateUser: AuthenticateUserService;
 let createUser: CreateUserService;
@@ -20,12 +22,14 @@ describe('AuthenticateUser', () => {
   beforeEach(() => {
     fakeUsersRepository = new FakeUsersRepository();
     fakeHashProvider = new FakeHashProvider();
+    fakeRefreshTokensRepository = new FakeRefreshTokensRepository();
 
     createUser = new CreateUserService(fakeUsersRepository, fakeHashProvider);
 
     authenticateUser = new AuthenticateUserService(
       fakeUsersRepository,
       fakeHashProvider,
+      fakeRefreshTokensRepository,
     );
   });
 
@@ -41,7 +45,8 @@ describe('AuthenticateUser', () => {
       password: '12345678',
     });
 
-    expect(response).toHaveProperty('token');
+    expect(response).toHaveProperty('accessToken');
+    expect(response).toHaveProperty('refreshToken');
     expect(response.user).toEqual(user);
   });
 

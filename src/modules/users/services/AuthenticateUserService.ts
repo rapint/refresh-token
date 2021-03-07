@@ -1,10 +1,14 @@
 import { injectable, inject } from 'tsyringe';
 import { sign } from 'jsonwebtoken';
+import crypto from 'crypto';
 
 import authConfig from '@config/auth';
+import refreshTokenConfig from '@config/refreshToken';
 import AppError from '@shared/errors/AppError';
 
 import IUsersRepository from '../repositories/IUsersRepository';
+import IRefreshTokensRepository from '../repositories/IRefreshTokensRepository';
+
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
 
 import User from '../infra/typeorm/entities/User';
@@ -16,7 +20,8 @@ interface IRequest {
 
 interface IResponse {
   user: User;
-  token: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 @injectable()
@@ -27,6 +32,9 @@ class AuthenticateUserService {
 
     @inject('HashProvider')
     private hashProvider: IHashProvider,
+
+    @inject('RefreshTokensRepository')
+    private refreshTokensRepository: IRefreshTokensRepository,
   ) {}
 
   public async execute({ email, password }: IRequest): Promise<IResponse> {
@@ -52,9 +60,18 @@ class AuthenticateUserService {
       expiresIn,
     });
 
+    const { refresh_token } = await this.refreshTokensRepository.create({
+      access_token: token,
+      expires_in: refreshTokenConfig.refreshToken.expiresIn,
+      is_active: true,
+      refresh_token: crypto.randomBytes(32).toString('hex'),
+      user_id: user.id,
+    });
+
     return {
       user,
-      token,
+      accessToken: token,
+      refreshToken: refresh_token,
     };
   }
 }
