@@ -17,4 +17,6 @@ usersRouter.get('/', usersController.show);
 
 usersRouter.put('/', update, usersController.update);
 
+usersRouter.delete('/', usersController.delete);
+
 export default usersRouter;
