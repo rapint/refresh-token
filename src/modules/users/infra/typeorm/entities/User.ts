@@ -4,9 +4,12 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 import { Exclude } from 'class-transformer';
+
+import RefreshToken from './RefreshToken';
 
 @Entity('users')
 class User {
@@ -22,6 +25,9 @@ class User {
   @Column()
   @Exclude()
   password: string;
+
+  @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
+  refresh_tokens: RefreshToken[];
 
   @CreateDateColumn()
   created_at: Date;
