@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import morgan from 'morgan';
 
 import express from 'express';
@@ -7,6 +8,9 @@ import 'express-async-errors';
 import { LoggerStream } from '@config/winston';
 import routes from './routes';
 import globalErrorHandling from './middlewares/globalErrorHandling';
+
+import '@shared/infra/typeorm';
+import '@shared/container';
 
 const app = express();
 
