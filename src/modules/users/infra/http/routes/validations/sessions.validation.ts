@@ -1,10 +1,14 @@
 import { Joi, Segments, celebrate } from 'celebrate';
 
-const create = celebrate({
+export const create = celebrate({
   [Segments.BODY]: {
     email: Joi.string().required(),
     password: Joi.string().required(),
   },
 });
 
-export default create;
+export const refreshToken = celebrate({
+  [Segments.BODY]: {
+    refreshToken: Joi.string().required(),
+  },
+});
