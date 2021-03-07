@@ -1,5 +1,7 @@
 import { Router } from 'express';
 
+import ensureAuthenticated from '@shared/infra/http/middlewares/ensureAuthenticated';
+
 import SessionController from '../controllers/SessionController';
 import RefreshTokenController from '../controllers/RefreshTokenController';
 
@@ -16,6 +18,12 @@ sessionsRouter.put(
   '/refresh-token',
   refreshToken,
   refreshTokenController.update,
+);
+
+sessionsRouter.delete(
+  '/logout',
+  ensureAuthenticated,
+  refreshTokenController.delete,
 );
 
 export default sessionsRouter;
