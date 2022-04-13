@@ -88,6 +88,22 @@ describe('AuthenticateUser', () => {
     );
   });
 
+  it('Should call compareHash with values corrects', async () => {
+    const { fakeHashProvider, authenticateUser } = makeSut();
+
+    const spyCompareHash = jest.spyOn(fakeHashProvider, 'compareHash');
+
+    await authenticateUser.execute({
+      email: 'any@mail.com',
+      password: 'any_password',
+    });
+
+    expect(spyCompareHash).toHaveBeenCalledWith(
+      'any_password',
+      'hashed_password',
+    );
+  });
+
   it('Should be able to authenticate', async () => {
     const { authenticateUser } = makeSut();
 

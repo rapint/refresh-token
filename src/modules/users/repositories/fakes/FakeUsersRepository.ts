@@ -32,7 +32,7 @@ class UsersRepository implements IUsersRepository {
       id: 'any_id',
       name: 'any_name',
       email: 'any@mail.com',
-      password: 'any_password',
+      password: 'hashed_password',
       createdAt: new Date('2022-01-01T00:00:00'),
       updatedAt: new Date('2022-01-01T00:00:00'),
     };
