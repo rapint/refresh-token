@@ -39,6 +39,21 @@ describe('AuthenticateUser', () => {
     expect(spyFindByEmail).toHaveBeenCalledWith('any@mail.com');
   });
 
+  it('Should throw error if findByEmail throws', async () => {
+    jest
+      .spyOn(fakeUsersRepository, 'findByEmail')
+      .mockImplementationOnce(() => {
+        throw new Error();
+      });
+
+    const promise = authenticateUser.execute({
+      email: 'any@mail.com',
+      password: 'any_password',
+    });
+
+    await expect(promise).rejects.toThrow();
+  });
+
   it('Should be able to authenticate', async () => {
     const response = await authenticateUser.execute({
       email: 'any@mail.com',
