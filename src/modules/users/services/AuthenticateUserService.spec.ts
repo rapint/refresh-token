@@ -119,6 +119,23 @@ describe('AuthenticateUser', () => {
     await expect(promise).rejects.toThrow();
   });
 
+  it('Should throw error if compareHash return false', async () => {
+    const { fakeHashProvider, authenticateUser } = makeSut();
+
+    jest
+      .spyOn(fakeHashProvider, 'compareHash')
+      .mockReturnValueOnce(new Promise(resolve => resolve(false)));
+
+    const promise = authenticateUser.execute({
+      email: 'any@mail.com',
+      password: 'any_password',
+    });
+
+    await expect(promise).rejects.toEqual(
+      new AppError('Combinação de email/senha incorreta.', 401),
+    );
+  });
+
   it('Should be able to authenticate', async () => {
     const { authenticateUser } = makeSut();
 
