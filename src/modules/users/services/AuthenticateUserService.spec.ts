@@ -1,3 +1,4 @@
+import AppError from '@shared/errors/AppError';
 import FakeUsersRepository from '../repositories/fakes/FakeUsersRepository';
 import FakeRefreshTokensRepository from '../repositories/fakes/FakeRefreshTokensRepository';
 import AuthenticateUserService from './AuthenticateUserService';
@@ -68,6 +69,23 @@ describe('AuthenticateUser', () => {
     });
 
     await expect(promise).rejects.toThrow();
+  });
+
+  it('Should throw error if findByEmail return undefined', async () => {
+    const { fakeUsersRepository, authenticateUser } = makeSut();
+
+    jest
+      .spyOn(fakeUsersRepository, 'findByEmail')
+      .mockReturnValueOnce(new Promise(resolve => resolve(undefined)));
+
+    const promise = authenticateUser.execute({
+      email: 'any@mail.com',
+      password: 'any_password',
+    });
+
+    await expect(promise).rejects.toEqual(
+      new AppError('Combinação de email/senha incorreta.', 401),
+    );
   });
 
   it('Should be able to authenticate', async () => {
