@@ -1,27 +1,41 @@
-import { v4 } from 'uuid';
-
 import IUsersRepository from '@modules/users/repositories/IUsersRepository';
 import ICreateUserDTO from '@modules/users/dtos/ICreateUserDTO';
 import { IUserModel } from '@modules/users/models/IUserModel';
-import { UserOrm } from '@modules/users/infra/typeorm/entities/UserOrm';
 
 class UsersRepository implements IUsersRepository {
-  private users: IUserModel[] = [];
-
   public async index(): Promise<IUserModel[]> {
-    return this.users;
+    return [
+      {
+        id: 'any_id',
+        name: 'any_name',
+        email: 'any@mail.com',
+        password: 'any_password',
+        createdAt: new Date('2022-01-01T00:00:00'),
+        updatedAt: new Date('2022-01-01T00:00:00'),
+      },
+    ];
   }
 
-  public async findById(id: string): Promise<IUserModel | undefined> {
-    const user = this.users.find(findUser => findUser.id === id);
-
-    return user;
+  public async findById(): Promise<IUserModel | undefined> {
+    return {
+      id: 'any_id',
+      name: 'any_name',
+      email: 'any@mail.com',
+      password: 'any_password',
+      createdAt: new Date('2022-01-01T00:00:00'),
+      updatedAt: new Date('2022-01-01T00:00:00'),
+    };
   }
 
-  public async findByEmail(email: string): Promise<IUserModel | undefined> {
-    const user = this.users.find(findUser => findUser.email === email);
-
-    return user;
+  public async findByEmail(): Promise<IUserModel | undefined> {
+    return {
+      id: 'any_id',
+      name: 'any_name',
+      email: 'any@mail.com',
+      password: 'any_password',
+      createdAt: new Date('2022-01-01T00:00:00'),
+      updatedAt: new Date('2022-01-01T00:00:00'),
+    };
   }
 
   public async create({
@@ -29,24 +43,31 @@ class UsersRepository implements IUsersRepository {
     password,
     name,
   }: ICreateUserDTO): Promise<IUserModel> {
-    const user = new UserOrm();
-
-    Object.assign(user, { id: v4(), email, password, name });
-
-    this.users.push(user);
-
-    return user;
+    return {
+      id: 'any_id',
+      name,
+      email,
+      password,
+      createdAt: new Date('2022-01-01T00:00:00'),
+      updatedAt: new Date('2022-01-01T00:00:00'),
+    };
   }
 
-  public async save(user: IUserModel): Promise<IUserModel> {
-    this.users.push(user);
-    return user;
+  public async save(): Promise<IUserModel> {
+    return {
+      id: 'any_id',
+      name: 'any_name',
+      email: 'any@mail.com',
+      password: 'any_password',
+      createdAt: new Date('2022-01-01T00:00:00'),
+      updatedAt: new Date('2022-01-01T00:00:00'),
+    };
   }
 
-  public async remove(user: IUserModel): Promise<void> {
-    const userIndex = this.users.findIndex(findUser => findUser.id === user.id);
-
-    this.users.splice(userIndex, 1);
+  public async remove(): Promise<void> {
+    await new Promise(resolve => {
+      resolve(null);
+    });
   }
 }
 
