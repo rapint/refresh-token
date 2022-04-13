@@ -4,8 +4,8 @@ import AppError from '@shared/errors/AppError';
 
 import IUsersRepository from '../repositories/IUsersRepository';
 
-import User from '../infra/typeorm/entities/User';
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
+import { IUserModel } from '../models/IUserModel';
 
 interface IRequest {
   name: string;
@@ -31,7 +31,7 @@ class UpdateUserService {
     name,
     oldPassword,
     userId,
-  }: IRequest): Promise<User> {
+  }: IRequest): Promise<IUserModel> {
     const user = await this.usersRepository.findById(userId);
 
     if (!user) {

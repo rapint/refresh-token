@@ -3,8 +3,8 @@ import { injectable, inject } from 'tsyringe';
 import AppError from '@shared/errors/AppError';
 
 import IUsersRepository from '../repositories/IUsersRepository';
-import User from '../infra/typeorm/entities/User';
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
+import { IUserModel } from '../models/IUserModel';
 
 interface IRequest {
   email: string;
@@ -22,7 +22,11 @@ class CreateUserService {
     private hashProvider: IHashProvider,
   ) {}
 
-  public async execute({ email, password, name }: IRequest): Promise<User> {
+  public async execute({
+    email,
+    password,
+    name,
+  }: IRequest): Promise<IUserModel> {
     const checkUserExists = await this.usersRepository.findByEmail(email);
 
     if (checkUserExists) {

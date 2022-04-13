@@ -9,10 +9,11 @@ import {
 
 import { Exclude } from 'class-transformer';
 
+import { IUserModel } from '@modules/users/models/IUserModel';
 import RefreshToken from './RefreshToken';
 
 @Entity('users')
-class User {
+export class UserOrm implements IUserModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -27,13 +28,11 @@ class User {
   password: string;
 
   @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
-  refresh_tokens: RefreshToken[];
+  refreshTokens: RefreshToken[];
 
-  @CreateDateColumn()
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }
-
-export default User;

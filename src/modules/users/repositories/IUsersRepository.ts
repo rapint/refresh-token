@@ -1,10 +1,10 @@
-import User from '../infra/typeorm/entities/User';
+import { IUserModel } from '../models/IUserModel';
 import ICreateUserDTO from '../dtos/ICreateUserDTO';
 
 export default interface IUsersRepository {
-  findById(id: string): Promise<User | undefined>;
-  findByEmail(email: string): Promise<User | undefined>;
-  create(data: ICreateUserDTO): Promise<User>;
-  save(user: User): Promise<User>;
-  remove(user: User): Promise<void>;
+  findById(id: string): Promise<IUserModel | undefined>;
+  findByEmail(email: string): Promise<IUserModel | undefined>;
+  create(data: ICreateUserDTO): Promise<IUserModel>;
+  save(user: IUserModel): Promise<IUserModel>;
+  remove(user: IUserModel): Promise<void>;
 }

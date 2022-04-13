@@ -10,10 +10,10 @@ import AppError from '@shared/errors/AppError';
 
 import IUsersRepository from '../repositories/IUsersRepository';
 import IRefreshTokensRepository from '../repositories/IRefreshTokensRepository';
-import User from '../infra/typeorm/entities/User';
+import { IUserModel } from '../models/IUserModel';
 
 interface IResponse {
-  user: User;
+  user: IUserModel;
   accessToken: string;
   refreshToken: string;
 }

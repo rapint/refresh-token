@@ -8,7 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-import User from './User';
+import { UserOrm } from './UserOrm';
 
 @Entity('Refresh_tokens')
 class RefreshToken {
@@ -24,13 +24,13 @@ class RefreshToken {
   @Column()
   user_id: string;
 
-  @ManyToOne(() => User, user => user.refresh_tokens, {
+  @ManyToOne(() => UserOrm, user => user.refreshTokens, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserOrm;
 
   @Column()
   expires_in: number;

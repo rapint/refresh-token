@@ -10,8 +10,7 @@ import IUsersRepository from '../repositories/IUsersRepository';
 import IRefreshTokensRepository from '../repositories/IRefreshTokensRepository';
 
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
-
-import User from '../infra/typeorm/entities/User';
+import { IUserModel } from '../models/IUserModel';
 
 interface IRequest {
   email: string;
@@ -19,7 +18,7 @@ interface IRequest {
 }
 
 interface IResponse {
-  user: User;
+  user: IUserModel;
   accessToken: string;
   refreshToken: string;
 }

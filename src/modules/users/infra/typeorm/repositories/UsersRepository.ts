@@ -3,16 +3,16 @@ import { getRepository, Repository } from 'typeorm';
 import IUsersRepository from '@modules/users/repositories/IUsersRepository';
 import ICreateUserDTO from '@modules/users/dtos/ICreateUserDTO';
 
-import User from '../entities/User';
+import { UserOrm } from '../entities/UserOrm';
 
 class UsersRepository implements IUsersRepository {
-  private ormRepository: Repository<User>;
+  private ormRepository: Repository<UserOrm>;
 
   constructor() {
-    this.ormRepository = getRepository(User);
+    this.ormRepository = getRepository(UserOrm);
   }
 
-  public async index(): Promise<User[]> {
+  public async index(): Promise<UserOrm[]> {
     const users = await this.ormRepository.find({
       order: { name: 'ASC' },
     });
@@ -20,7 +20,7 @@ class UsersRepository implements IUsersRepository {
     return users;
   }
 
-  public async findById(id: string): Promise<User | undefined> {
+  public async findById(id: string): Promise<UserOrm | undefined> {
     const user = await this.ormRepository.findOne({
       where: { id },
     });
@@ -28,7 +28,7 @@ class UsersRepository implements IUsersRepository {
     return user;
   }
 
-  public async findByEmail(email: string): Promise<User | undefined> {
+  public async findByEmail(email: string): Promise<UserOrm | undefined> {
     const user = await this.ormRepository.findOne({
       where: { email },
     });
@@ -40,7 +40,7 @@ class UsersRepository implements IUsersRepository {
     email,
     name,
     password,
-  }: ICreateUserDTO): Promise<User> {
+  }: ICreateUserDTO): Promise<UserOrm> {
     const user = this.ormRepository.create({
       email,
       name,
@@ -52,11 +52,11 @@ class UsersRepository implements IUsersRepository {
     return user;
   }
 
-  public async save(user: User): Promise<User> {
+  public async save(user: UserOrm): Promise<UserOrm> {
     return this.ormRepository.save(user);
   }
 
-  public async remove(user: User): Promise<void> {
+  public async remove(user: UserOrm): Promise<void> {
     await this.ormRepository.remove(user);
   }
 }
