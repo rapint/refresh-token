@@ -104,6 +104,21 @@ describe('AuthenticateUser', () => {
     );
   });
 
+  it('Should throw error if compareHash throws', async () => {
+    const { fakeHashProvider, authenticateUser } = makeSut();
+
+    jest.spyOn(fakeHashProvider, 'compareHash').mockImplementationOnce(() => {
+      throw new Error();
+    });
+
+    const promise = authenticateUser.execute({
+      email: 'any@mail.com',
+      password: 'any_password',
+    });
+
+    await expect(promise).rejects.toThrow();
+  });
+
   it('Should be able to authenticate', async () => {
     const { authenticateUser } = makeSut();
 
