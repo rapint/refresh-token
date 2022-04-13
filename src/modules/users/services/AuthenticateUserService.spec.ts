@@ -2,11 +2,35 @@ import FakeUsersRepository from '../repositories/fakes/FakeUsersRepository';
 import FakeRefreshTokensRepository from '../repositories/fakes/FakeRefreshTokensRepository';
 import AuthenticateUserService from './AuthenticateUserService';
 import FakeHashProvider from '../providers/HashProvider/fakes/FakeHashProvider';
+import IUsersRepository from '../repositories/IUsersRepository';
+import IRefreshTokensRepository from '../repositories/IRefreshTokensRepository';
+import IHashProvider from '../providers/HashProvider/models/IHashProvider';
 
-let fakeUsersRepository: FakeUsersRepository;
-let fakeRefreshTokensRepository: FakeRefreshTokensRepository;
-let fakeHashProvider: FakeHashProvider;
-let authenticateUser: AuthenticateUserService;
+interface ISut {
+  fakeUsersRepository: IUsersRepository;
+  fakeRefreshTokensRepository: IRefreshTokensRepository;
+  fakeHashProvider: IHashProvider;
+  authenticateUser: AuthenticateUserService;
+}
+
+const makeSut = (): ISut => {
+  const fakeUsersRepository = new FakeUsersRepository();
+  const fakeHashProvider = new FakeHashProvider();
+  const fakeRefreshTokensRepository = new FakeRefreshTokensRepository();
+
+  const authenticateUser = new AuthenticateUserService(
+    fakeUsersRepository,
+    fakeHashProvider,
+    fakeRefreshTokensRepository,
+  );
+
+  return {
+    authenticateUser,
+    fakeUsersRepository,
+    fakeHashProvider,
+    fakeRefreshTokensRepository,
+  };
+};
 
 jest.mock('@config/auth', () => ({
   jwt: {
@@ -16,19 +40,9 @@ jest.mock('@config/auth', () => ({
 }));
 
 describe('AuthenticateUser', () => {
-  beforeEach(() => {
-    fakeUsersRepository = new FakeUsersRepository();
-    fakeHashProvider = new FakeHashProvider();
-    fakeRefreshTokensRepository = new FakeRefreshTokensRepository();
-
-    authenticateUser = new AuthenticateUserService(
-      fakeUsersRepository,
-      fakeHashProvider,
-      fakeRefreshTokensRepository,
-    );
-  });
-
   it('Should call findByEmail with corrects values', async () => {
+    const { fakeUsersRepository, authenticateUser } = makeSut();
+
     const spyFindByEmail = jest.spyOn(fakeUsersRepository, 'findByEmail');
 
     await authenticateUser.execute({
@@ -40,6 +54,8 @@ describe('AuthenticateUser', () => {
   });
 
   it('Should throw error if findByEmail throws', async () => {
+    const { fakeUsersRepository, authenticateUser } = makeSut();
+
     jest
       .spyOn(fakeUsersRepository, 'findByEmail')
       .mockImplementationOnce(() => {
@@ -55,6 +71,8 @@ describe('AuthenticateUser', () => {
   });
 
   it('Should be able to authenticate', async () => {
+    const { authenticateUser } = makeSut();
+
     const response = await authenticateUser.execute({
       email: 'any@mail.com',
       password: 'any_password',
