@@ -1,11 +1,9 @@
-import { injectable, inject } from 'tsyringe';
-import { sign } from 'jsonwebtoken';
 import crypto from 'crypto';
 
-import authConfig from '@config/auth';
 import refreshTokenConfig from '@config/refreshToken';
 import AppError from '@shared/errors/AppError';
 
+import { IEncrypter } from '@shared/container/encrypterProvider/protocols/IEncrypt';
 import IUsersRepository from '../repositories/IUsersRepository';
 import IRefreshTokensRepository from '../repositories/IRefreshTokensRepository';
 
@@ -23,17 +21,12 @@ interface IResponse {
   refreshToken: string;
 }
 
-@injectable()
 class AuthenticateUserService {
   constructor(
-    @inject('UsersRepository')
     private usersRepository: IUsersRepository,
-
-    @inject('HashProvider')
     private hashProvider: IHashProvider,
-
-    @inject('RefreshTokensRepository')
     private refreshTokensRepository: IRefreshTokensRepository,
+    private encrypter: IEncrypter,
   ) {}
 
   public async execute({ email, password }: IRequest): Promise<IResponse> {
@@ -52,15 +45,10 @@ class AuthenticateUserService {
       throw new AppError('Combinação de email/senha incorreta.', 401);
     }
 
-    const { secret, expiresIn } = authConfig.jwt;
-
-    const token = sign({}, secret, {
-      subject: user.id,
-      expiresIn,
-    });
+    await this.encrypter.encrypt(user.id);
 
     const { refresh_token } = await this.refreshTokensRepository.create({
-      access_token: token,
+      access_token: 'token',
       expires_in: refreshTokenConfig.refreshToken.expiresIn,
       is_active: true,
       refresh_token: crypto.randomBytes(32).toString('hex'),
@@ -69,7 +57,7 @@ class AuthenticateUserService {
 
     return {
       user,
-      accessToken: token,
+      accessToken: 'token',
       refreshToken: refresh_token,
     };
   }

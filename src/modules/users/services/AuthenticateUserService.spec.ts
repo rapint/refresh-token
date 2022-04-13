@@ -1,4 +1,6 @@
 import AppError from '@shared/errors/AppError';
+import { FakeEncrypterProvider } from '@shared/container/encrypterProvider/fakes/FakeEncrypterProvider';
+import { IEncrypter } from '@shared/container/encrypterProvider/protocols/IEncrypt';
 import FakeUsersRepository from '../repositories/fakes/FakeUsersRepository';
 import FakeRefreshTokensRepository from '../repositories/fakes/FakeRefreshTokensRepository';
 import AuthenticateUserService from './AuthenticateUserService';
@@ -11,6 +13,7 @@ interface ISut {
   fakeUsersRepository: IUsersRepository;
   fakeRefreshTokensRepository: IRefreshTokensRepository;
   fakeHashProvider: IHashProvider;
+  fakeEncrypterProvider: IEncrypter;
   authenticateUser: AuthenticateUserService;
 }
 
@@ -18,11 +21,13 @@ const makeSut = (): ISut => {
   const fakeUsersRepository = new FakeUsersRepository();
   const fakeHashProvider = new FakeHashProvider();
   const fakeRefreshTokensRepository = new FakeRefreshTokensRepository();
+  const fakeEncrypterProvider = new FakeEncrypterProvider();
 
   const authenticateUser = new AuthenticateUserService(
     fakeUsersRepository,
     fakeHashProvider,
     fakeRefreshTokensRepository,
+    fakeEncrypterProvider,
   );
 
   return {
@@ -30,15 +35,9 @@ const makeSut = (): ISut => {
     fakeUsersRepository,
     fakeHashProvider,
     fakeRefreshTokensRepository,
+    fakeEncrypterProvider,
   };
 };
-
-jest.mock('@config/auth', () => ({
-  jwt: {
-    secret: 'teste123',
-    expiresIn: '1d',
-  },
-}));
 
 describe('AuthenticateUser', () => {
   it('Should call findByEmail with corrects values', async () => {
@@ -134,6 +133,19 @@ describe('AuthenticateUser', () => {
     await expect(promise).rejects.toEqual(
       new AppError('Combinação de email/senha incorreta.', 401),
     );
+  });
+
+  it('Should call encrypt with values corrects', async () => {
+    const { fakeEncrypterProvider, authenticateUser } = makeSut();
+
+    const spyEncrypt = jest.spyOn(fakeEncrypterProvider, 'encrypt');
+
+    await authenticateUser.execute({
+      email: 'any@mail.com',
+      password: 'any_password',
+    });
+
+    expect(spyEncrypt).toHaveBeenCalledWith('any_id');
   });
 
   it('Should be able to authenticate', async () => {
