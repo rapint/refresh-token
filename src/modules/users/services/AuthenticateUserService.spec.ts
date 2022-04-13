@@ -148,6 +148,21 @@ describe('AuthenticateUser', () => {
     expect(spyEncrypt).toHaveBeenCalledWith('any_id');
   });
 
+  it('Should throw error if encrypt throws', async () => {
+    const { fakeEncrypterProvider, authenticateUser } = makeSut();
+
+    jest.spyOn(fakeEncrypterProvider, 'encrypt').mockImplementationOnce(() => {
+      throw new Error();
+    });
+
+    const promise = authenticateUser.execute({
+      email: 'any@mail.com',
+      password: 'any_password',
+    });
+
+    await expect(promise).rejects.toThrow();
+  });
+
   it('Should be able to authenticate', async () => {
     const { authenticateUser } = makeSut();
 
