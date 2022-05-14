@@ -180,6 +180,23 @@ describe('AuthenticateUser', () => {
     expect(spyGenerate).toHaveBeenCalledWith(12);
   });
 
+  it('Should throw error if generateHash throws', async () => {
+    const { fakeGenerateHashProvider, authenticateUser } = makeSut();
+
+    jest
+      .spyOn(fakeGenerateHashProvider, 'generate')
+      .mockImplementationOnce(() => {
+        throw new Error();
+      });
+
+    const promise = authenticateUser.execute({
+      email: 'any@mail.com',
+      password: 'any_password',
+    });
+
+    await expect(promise).rejects.toThrow();
+  });
+
   it('Should be able to authenticate', async () => {
     const { authenticateUser } = makeSut();
 
