@@ -1,11 +1,8 @@
-import crypto from 'crypto';
-
-import refreshTokenConfig from '@config/refreshToken';
 import AppError from '@shared/errors/AppError';
 
 import { IEncrypter } from '@shared/container/encrypterProvider/protocols/IEncrypt';
+import { IGenerateHashProvider } from '@shared/container/generateHashProvider/protocols/IGenerateHashProvider';
 import IUsersRepository from '../repositories/IUsersRepository';
-import IRefreshTokensRepository from '../repositories/IRefreshTokensRepository';
 
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
 import { IUserModel } from '../models/IUserModel';
@@ -25,8 +22,8 @@ class AuthenticateUserService {
   constructor(
     private usersRepository: IUsersRepository,
     private hashProvider: IHashProvider,
-    private refreshTokensRepository: IRefreshTokensRepository,
     private encrypter: IEncrypter,
+    private generateHashProvider: IGenerateHashProvider,
   ) {}
 
   public async execute({ email, password }: IRequest): Promise<IResponse> {
@@ -47,18 +44,12 @@ class AuthenticateUserService {
 
     await this.encrypter.encrypt(user.id);
 
-    const { refresh_token } = await this.refreshTokensRepository.create({
-      access_token: 'token',
-      expires_in: refreshTokenConfig.refreshToken.expiresIn,
-      is_active: true,
-      refresh_token: crypto.randomBytes(32).toString('hex'),
-      user_id: user.id,
-    });
+    this.generateHashProvider.generate(12);
 
     return {
       user,
-      accessToken: 'token',
-      refreshToken: refresh_token,
+      accessToken: '',
+      refreshToken: '',
     };
   }
 }
