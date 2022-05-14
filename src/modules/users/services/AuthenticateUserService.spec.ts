@@ -1,43 +1,47 @@
 import AppError from '@shared/errors/AppError';
 import { FakeEncrypterProvider } from '@shared/container/encrypterProvider/fakes/FakeEncrypterProvider';
 import { IEncrypter } from '@shared/container/encrypterProvider/protocols/IEncrypt';
+import { FakeGenerateHashProvider } from '@shared/container/generateHashProvider/fakes/FakeGenerateHashProvider';
+import { IGenerateHashProvider } from '@shared/container/generateHashProvider/protocols/IGenerateHashProvider';
 import FakeUsersRepository from '../repositories/fakes/FakeUsersRepository';
-import FakeRefreshTokensRepository from '../repositories/fakes/FakeRefreshTokensRepository';
 import AuthenticateUserService from './AuthenticateUserService';
 import FakeHashProvider from '../providers/HashProvider/fakes/FakeHashProvider';
 import IUsersRepository from '../repositories/IUsersRepository';
-import IRefreshTokensRepository from '../repositories/IRefreshTokensRepository';
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
 
 interface ISut {
   fakeUsersRepository: IUsersRepository;
-  fakeRefreshTokensRepository: IRefreshTokensRepository;
   fakeHashProvider: IHashProvider;
   fakeEncrypterProvider: IEncrypter;
+  fakeGenerateHashProvider: IGenerateHashProvider;
   authenticateUser: AuthenticateUserService;
 }
 
 const makeSut = (): ISut => {
   const fakeUsersRepository = new FakeUsersRepository();
   const fakeHashProvider = new FakeHashProvider();
-  const fakeRefreshTokensRepository = new FakeRefreshTokensRepository();
   const fakeEncrypterProvider = new FakeEncrypterProvider();
+  const fakeGenerateHashProvider = new FakeGenerateHashProvider();
 
   const authenticateUser = new AuthenticateUserService(
     fakeUsersRepository,
     fakeHashProvider,
-    fakeRefreshTokensRepository,
     fakeEncrypterProvider,
+    fakeGenerateHashProvider,
   );
 
   return {
     authenticateUser,
     fakeUsersRepository,
     fakeHashProvider,
-    fakeRefreshTokensRepository,
     fakeEncrypterProvider,
+    fakeGenerateHashProvider,
   };
 };
+
+jest.mock('@config/refreshToken', () => {
+  return { refreshToken: { expiresIn: 100 } };
+});
 
 describe('AuthenticateUser', () => {
   it('Should call findByEmail with corrects values', async () => {
@@ -161,6 +165,19 @@ describe('AuthenticateUser', () => {
     });
 
     await expect(promise).rejects.toThrow();
+  });
+
+  it('Should call generateHash with values corrects', async () => {
+    const { fakeGenerateHashProvider, authenticateUser } = makeSut();
+
+    const spyGenerate = jest.spyOn(fakeGenerateHashProvider, 'generate');
+
+    await authenticateUser.execute({
+      email: 'any@mail.com',
+      password: 'any_password',
+    });
+
+    expect(spyGenerate).toHaveBeenCalledWith(12);
   });
 
   it('Should be able to authenticate', async () => {
