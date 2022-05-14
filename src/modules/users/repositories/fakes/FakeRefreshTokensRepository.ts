@@ -1,69 +1,70 @@
-import { v4 } from 'uuid';
-
 import IRefreshTokensRepository from '@modules/users/repositories/IRefreshTokensRepository';
-import ICreateRefreshTokenDTO from '@modules/users/dtos/ICreateRefreshTokenDTO';
-
-import RefreshToken from '../../infra/typeorm/entities/RefreshToken';
+import { IRefreshTokenModel } from '@modules/users/models/IRefreshTokenModel';
 
 class FakeRefreshTokensRepository implements IRefreshTokensRepository {
-  private refreshToken: RefreshToken[] = [];
-
-  public async findByUserId(id: string): Promise<RefreshToken | undefined> {
-    const refeshToken = this.refreshToken.find(
-      findRefreshToken => findRefreshToken.user_id === id,
-    );
-
-    return refeshToken;
+  public async findByUserId(): Promise<IRefreshTokenModel | undefined> {
+    return {
+      id: 'any_id',
+      accessToken: 'any_access_token',
+      userId: 'any_user_id',
+      refreshToken: 'any_refresh_token',
+      expiresIn: 100,
+      isActive: true,
+      createdAt: new Date('2022-01-01T03:00:00'),
+      updatedAt: new Date('2022-01-01T03:00:00'),
+    };
   }
 
-  public async findByRefreshToken(
-    token: string,
-  ): Promise<RefreshToken | undefined> {
-    const refreshToken = this.refreshToken.find(
-      findRefreshToken => findRefreshToken.refresh_token === token,
-    );
-
-    return refreshToken;
+  public async findByRefreshToken(): Promise<IRefreshTokenModel | undefined> {
+    return {
+      id: 'any_id',
+      accessToken: 'any_access_token',
+      userId: 'any_user_id',
+      refreshToken: 'any_refresh_token',
+      expiresIn: 100,
+      isActive: true,
+      createdAt: new Date('2022-01-01T03:00:00'),
+      updatedAt: new Date('2022-01-01T03:00:00'),
+    };
   }
 
-  public async findByAccessToken(
-    token: string,
-  ): Promise<RefreshToken | undefined> {
-    const refreshToken = this.refreshToken.find(
-      findRefreshToken => findRefreshToken.access_token === token,
-    );
-
-    return refreshToken;
+  public async findByAccessToken(): Promise<IRefreshTokenModel | undefined> {
+    return {
+      id: 'any_id',
+      accessToken: 'any_access_token',
+      userId: 'any_user_id',
+      refreshToken: 'any_refresh_token',
+      expiresIn: 100,
+      isActive: true,
+      createdAt: new Date('2022-01-01T03:00:00'),
+      updatedAt: new Date('2022-01-01T03:00:00'),
+    };
   }
 
-  public async create({
-    access_token,
-    expires_in,
-    is_active,
-    refresh_token,
-    user_id,
-  }: ICreateRefreshTokenDTO): Promise<RefreshToken> {
-    const user = new RefreshToken();
-
-    Object.assign(user, {
-      id: v4(),
-      access_token,
-      expires_in,
-      is_active,
-      refresh_token,
-      user_id,
-      created_at: Date.now(),
-    });
-
-    this.refreshToken.push(user);
-
-    return user;
+  public async create(): Promise<IRefreshTokenModel> {
+    return {
+      id: 'any_id',
+      accessToken: 'any_access_token',
+      userId: 'any_user_id',
+      refreshToken: 'any_refresh_token',
+      expiresIn: 100,
+      isActive: true,
+      createdAt: new Date('2022-01-01T03:00:00'),
+      updatedAt: new Date('2022-01-01T03:00:00'),
+    };
   }
 
-  public async save(data: RefreshToken): Promise<RefreshToken> {
-    this.refreshToken.push(data);
-
-    return data;
+  public async save(): Promise<IRefreshTokenModel> {
+    return {
+      id: 'any_id',
+      accessToken: 'any_access_token',
+      userId: 'any_user_id',
+      refreshToken: 'any_refresh_token',
+      expiresIn: 100,
+      isActive: true,
+      createdAt: new Date('2022-01-01T03:00:00'),
+      updatedAt: new Date('2022-01-01T03:00:00'),
+    };
   }
 }
 

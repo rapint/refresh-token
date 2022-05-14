@@ -1,3 +1,4 @@
+import refreshTokenConfig from '@config/refreshToken';
 import AppError from '@shared/errors/AppError';
 
 import { IEncrypter } from '@shared/container/encrypterProvider/protocols/IEncrypt';
@@ -6,6 +7,7 @@ import IUsersRepository from '../repositories/IUsersRepository';
 
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
 import { IUserModel } from '../models/IUserModel';
+import IRefreshTokensRepository from '../repositories/IRefreshTokensRepository';
 
 interface IRequest {
   email: string;
@@ -24,6 +26,7 @@ class AuthenticateUserService {
     private hashProvider: IHashProvider,
     private encrypter: IEncrypter,
     private generateHashProvider: IGenerateHashProvider,
+    private refreshTokensRepository: IRefreshTokensRepository,
   ) {}
 
   public async execute({ email, password }: IRequest): Promise<IResponse> {
@@ -42,9 +45,17 @@ class AuthenticateUserService {
       throw new AppError('Combinação de email/senha incorreta.', 401);
     }
 
-    await this.encrypter.encrypt(user.id);
+    const accessToken = await this.encrypter.encrypt(user.id);
 
-    this.generateHashProvider.generate(12);
+    const refreshToken = this.generateHashProvider.generate(12);
+
+    await this.refreshTokensRepository.create({
+      accessToken,
+      expiresIn: refreshTokenConfig.refreshToken.expiresIn,
+      isActive: true,
+      refreshToken,
+      userId: user.id,
+    });
 
     return {
       user,

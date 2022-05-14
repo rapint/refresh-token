@@ -1,3 +1,4 @@
+import { IRefreshTokenModel } from '@modules/users/models/IRefreshTokenModel';
 import {
   Entity,
   CreateDateColumn,
@@ -10,19 +11,19 @@ import {
 
 import { UserOrm } from './UserOrm';
 
-@Entity('Refresh_tokens')
-class RefreshToken {
+@Entity('refresh_tokens')
+class RefreshToken implements IRefreshTokenModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  access_token: string;
+  @Column({ name: 'access_token' })
+  accessToken: string;
 
-  @Column()
-  refresh_token: string;
+  @Column({ name: 'refresh_token' })
+  refreshToken: string;
 
-  @Column()
-  user_id: string;
+  @Column({ name: 'user_id' })
+  userId: string;
 
   @ManyToOne(() => UserOrm, user => user.refreshTokens, {
     cascade: true,
@@ -32,17 +33,17 @@ class RefreshToken {
   @JoinColumn({ name: 'user_id' })
   user: UserOrm;
 
-  @Column()
-  expires_in: number;
+  @Column({ name: 'expiresIn' })
+  expiresIn: number;
 
-  @Column({ default: false })
-  is_active: boolean;
+  @Column({ name: 'is_active', default: false })
+  isActive: boolean;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }
 
 export default RefreshToken;

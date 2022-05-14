@@ -1,10 +1,10 @@
 import ICreateRefreshTokenDTO from '../dtos/ICreateRefreshTokenDTO';
-import RefreshToken from '../infra/typeorm/entities/RefreshToken';
+import { IRefreshTokenModel } from '../models/IRefreshTokenModel';
 
 export default interface IRefreshTokensRepository {
-  findByUserId(id: string): Promise<RefreshToken | undefined>;
-  findByRefreshToken(token: string): Promise<RefreshToken | undefined>;
-  findByAccessToken(token: string): Promise<RefreshToken | undefined>;
-  create(data: ICreateRefreshTokenDTO): Promise<RefreshToken>;
-  save(data: RefreshToken): Promise<RefreshToken>;
+  findByUserId(id: string): Promise<IRefreshTokenModel | undefined>;
+  findByRefreshToken(token: string): Promise<IRefreshTokenModel | undefined>;
+  findByAccessToken(token: string): Promise<IRefreshTokenModel | undefined>;
+  create(data: ICreateRefreshTokenDTO): Promise<IRefreshTokenModel>;
+  save(data: IRefreshTokenModel): Promise<IRefreshTokenModel>;
 }
