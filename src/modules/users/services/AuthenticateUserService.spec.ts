@@ -8,12 +8,15 @@ import AuthenticateUserService from './AuthenticateUserService';
 import FakeHashProvider from '../providers/HashProvider/fakes/FakeHashProvider';
 import IUsersRepository from '../repositories/IUsersRepository';
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
+import IRefreshTokensRepository from '../repositories/IRefreshTokensRepository';
+import FakeRefreshTokensRepository from '../repositories/fakes/FakeRefreshTokensRepository';
 
 interface ISut {
   fakeUsersRepository: IUsersRepository;
   fakeHashProvider: IHashProvider;
   fakeEncrypterProvider: IEncrypter;
   fakeGenerateHashProvider: IGenerateHashProvider;
+  fakeRefreshTokensRepository: IRefreshTokensRepository;
   authenticateUser: AuthenticateUserService;
 }
 
@@ -22,12 +25,14 @@ const makeSut = (): ISut => {
   const fakeHashProvider = new FakeHashProvider();
   const fakeEncrypterProvider = new FakeEncrypterProvider();
   const fakeGenerateHashProvider = new FakeGenerateHashProvider();
+  const fakeRefreshTokensRepository = new FakeRefreshTokensRepository();
 
   const authenticateUser = new AuthenticateUserService(
     fakeUsersRepository,
     fakeHashProvider,
     fakeEncrypterProvider,
     fakeGenerateHashProvider,
+    fakeRefreshTokensRepository,
   );
 
   return {
@@ -36,6 +41,7 @@ const makeSut = (): ISut => {
     fakeHashProvider,
     fakeEncrypterProvider,
     fakeGenerateHashProvider,
+    fakeRefreshTokensRepository,
   };
 };
 
@@ -195,6 +201,25 @@ describe('AuthenticateUser', () => {
     });
 
     await expect(promise).rejects.toThrow();
+  });
+
+  it('Should call create of RefreshTokenRepository with values corrects', async () => {
+    const { fakeRefreshTokensRepository, authenticateUser } = makeSut();
+
+    const spyCreate = jest.spyOn(fakeRefreshTokensRepository, 'create');
+
+    await authenticateUser.execute({
+      email: 'any@mail.com',
+      password: 'any_password',
+    });
+
+    expect(spyCreate).toHaveBeenCalledWith({
+      accessToken: 'any_token',
+      expiresIn: 100,
+      isActive: true,
+      refreshToken: 'any_hash',
+      userId: 'any_id',
+    });
   });
 
   it('Should be able to authenticate', async () => {
