@@ -22,11 +22,11 @@ interface IResponse {
 
 class AuthenticateUserService {
   constructor(
-    private usersRepository: IUsersRepository,
-    private hashProvider: IHashProvider,
-    private encrypter: IEncrypter,
-    private generateHashProvider: IGenerateHashProvider,
-    private refreshTokensRepository: IRefreshTokensRepository,
+    private readonly usersRepository: IUsersRepository,
+    private readonly hashProvider: IHashProvider,
+    private readonly encrypter: IEncrypter,
+    private readonly generateHashProvider: IGenerateHashProvider,
+    private readonly refreshTokensRepository: IRefreshTokensRepository,
   ) {}
 
   public async execute({ email, password }: IRequest): Promise<IResponse> {
