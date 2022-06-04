@@ -41,6 +41,20 @@ describe('DeleteUserService', () => {
     expect(spyFindById).toHaveBeenCalledWith('user_id');
   });
 
+  it('Should throw if FindUserByIdRepository throws', async () => {
+    const { deleteUserService, fakeFindUserByIdRepository } = makeSut();
+
+    jest
+      .spyOn(fakeFindUserByIdRepository, 'find')
+      .mockImplementationOnce(() => {
+        throw new Error();
+      });
+
+    const promise = deleteUserService.execute('user_id');
+
+    await expect(promise).rejects.toThrow();
+  });
+
   it('Should be able to delete a user', async () => {
     const { deleteUserService } = makeSut();
 
