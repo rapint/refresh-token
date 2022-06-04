@@ -15,6 +15,8 @@ interface ISut {
   deleteUserService: DeleteUserService;
 }
 
+const userId = 'any_id';
+
 const makeSut = (): ISut => {
   const fakeFindUserByIdRepository = new FakeFindUserByIdRepository();
   const fakeRemoveUserRepository = new FakeRemoveUserRepository();
@@ -37,9 +39,9 @@ describe('DeleteUserService', () => {
 
     const spyFindById = jest.spyOn(fakeFindUserByIdRepository, 'find');
 
-    await deleteUserService.execute('user_id');
+    await deleteUserService.execute(userId);
 
-    expect(spyFindById).toHaveBeenCalledWith('user_id');
+    expect(spyFindById).toHaveBeenCalledWith(userId);
   });
 
   it('Should throw if FindUserByIdRepository throws', async () => {
@@ -51,7 +53,7 @@ describe('DeleteUserService', () => {
         throw new Error();
       });
 
-    const promise = deleteUserService.execute('user_id');
+    const promise = deleteUserService.execute(userId);
 
     await expect(promise).rejects.toThrow();
   });
@@ -63,17 +65,27 @@ describe('DeleteUserService', () => {
       .spyOn(fakeFindUserByIdRepository, 'find')
       .mockImplementationOnce(() => new Promise(resolve => resolve(undefined)));
 
-    const promise = deleteUserService.execute('user_id');
+    const promise = deleteUserService.execute(userId);
 
     await expect(promise).rejects.toEqual(
       new AppError('Usuário não encontrado.', 404),
     );
   });
 
+  it('Should call RemoveUserRepository with correct values', async () => {
+    const { deleteUserService, fakeRemoveUserRepository } = makeSut();
+
+    const spyRemove = jest.spyOn(fakeRemoveUserRepository, 'remove');
+
+    await deleteUserService.execute(userId);
+
+    expect(spyRemove).toHaveBeenCalledWith(userId);
+  });
+
   it('Should be able to delete a user', async () => {
     const { deleteUserService } = makeSut();
 
-    const deletedUser = await deleteUserService.execute('user_id');
+    const deletedUser = await deleteUserService.execute(userId);
 
     expect(deletedUser).toBe(undefined);
   });

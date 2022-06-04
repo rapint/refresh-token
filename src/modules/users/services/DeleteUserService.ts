@@ -18,6 +18,6 @@ export class DeleteUserService {
       throw new AppError('Usuário não encontrado.', 404);
     }
 
-    await this.removeUserRepository.remove(user);
+    await this.removeUserRepository.remove(user.id);
   }
 }
