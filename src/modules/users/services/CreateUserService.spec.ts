@@ -99,6 +99,20 @@ describe('CreateUser', () => {
     );
   });
 
+  it('Should call generateHash with corrects values', async () => {
+    const { createUserService, fakeHashProvider } = makeSut();
+
+    const spyGenerateHash = jest.spyOn(fakeHashProvider, 'generateHash');
+
+    await createUserService.execute({
+      name: 'any_name',
+      email: 'any@email.com',
+      password: '12345678',
+    });
+
+    expect(spyGenerateHash).toHaveBeenCalledWith('12345678');
+  });
+
   it('Should be able to create a new user', async () => {
     const { createUserService } = makeSut();
 
