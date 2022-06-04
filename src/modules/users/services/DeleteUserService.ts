@@ -1,25 +1,23 @@
-import { injectable, inject } from 'tsyringe';
-
 import AppError from '@shared/errors/AppError';
 
-import IUsersRepository from '../repositories/IUsersRepository';
+import {
+  IFindUserByIdRepository,
+  IRemoveUserRepository,
+} from '../repositories';
 
-@injectable()
-class DeleteUserService {
+export class DeleteUserService {
   constructor(
-    @inject('UsersRepository')
-    private usersRepository: IUsersRepository,
+    private readonly findUserByIdRepository: IFindUserByIdRepository,
+    private readonly removeUserRepository: IRemoveUserRepository,
   ) {}
 
   public async execute(userId: string): Promise<void> {
-    const user = await this.usersRepository.findById(userId);
+    const user = await this.findUserByIdRepository.find(userId);
 
     if (!user) {
       throw new AppError('Usuário não encontrado no sistema', 404);
     }
 
-    await this.usersRepository.remove(user);
+    await this.removeUserRepository.remove(user);
   }
 }
-
-export default DeleteUserService;

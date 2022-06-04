@@ -1,34 +1,51 @@
-import AppError from '@shared/errors/AppError';
-import FakeUsersRepository from '../repositories/fakes/FakeRemoveUserRepository';
-import DeleteUserService from './DeleteUserService';
+import {
+  IFindUserByIdRepository,
+  IRemoveUserRepository,
+} from '../repositories';
+import {
+  FakeFindUserByIdRepository,
+  FakeRemoveUserRepository,
+} from '../repositories/fakes';
+import { DeleteUserService } from './DeleteUserService';
 
-let fakeUsersRepository: FakeUsersRepository;
-let deleteUserService: DeleteUserService;
+interface ISut {
+  fakeFindUserByIdRepository: IFindUserByIdRepository;
+  fakeRemoveUserRepository: IRemoveUserRepository;
+  deleteUserService: DeleteUserService;
+}
+
+const makeSut = (): ISut => {
+  const fakeFindUserByIdRepository = new FakeFindUserByIdRepository();
+  const fakeRemoveUserRepository = new FakeRemoveUserRepository();
+
+  const deleteUserService = new DeleteUserService(
+    fakeFindUserByIdRepository,
+    fakeRemoveUserRepository,
+  );
+
+  return {
+    deleteUserService,
+    fakeFindUserByIdRepository,
+    fakeRemoveUserRepository,
+  };
+};
 
 describe('DeleteUserService', () => {
-  beforeEach(() => {
-    fakeUsersRepository = new FakeUsersRepository();
+  it('Should call FindUserByIdRepository with correct values', async () => {
+    const { deleteUserService, fakeFindUserByIdRepository } = makeSut();
 
-    deleteUserService = new DeleteUserService(fakeUsersRepository);
+    const spyFindById = jest.spyOn(fakeFindUserByIdRepository, 'find');
+
+    await deleteUserService.execute('user_id');
+
+    expect(spyFindById).toHaveBeenCalledWith('user_id');
   });
 
   it('Should be able to delete a user', async () => {
-    const user = await fakeUsersRepository.create({
-      name: 'José',
-      email: 'jose@email.com',
-      password: '12345678',
-    });
+    const { deleteUserService } = makeSut();
 
-    const deleteUser = jest.spyOn(fakeUsersRepository, 'remove');
+    const deletedUser = await deleteUserService.execute('user_id');
 
-    await deleteUserService.execute(user.id);
-
-    expect(deleteUser).toHaveBeenCalledWith(user);
-  });
-
-  it('Should not be able to delete a non existing user', async () => {
-    expect(
-      deleteUserService.execute('non-existing-user'),
-    ).rejects.toBeInstanceOf(AppError);
+    expect(deletedUser).toBe(undefined);
   });
 });
