@@ -113,6 +113,22 @@ describe('CreateUser', () => {
     expect(spyGenerateHash).toHaveBeenCalledWith('12345678');
   });
 
+  it('Should throw generateHash if throws', async () => {
+    const { createUserService, fakeHashProvider } = makeSut();
+
+    jest.spyOn(fakeHashProvider, 'generateHash').mockImplementationOnce(() => {
+      throw new Error();
+    });
+
+    const promise = createUserService.execute({
+      name: 'any_name',
+      email: 'any@email.com',
+      password: '12345678',
+    });
+
+    await expect(promise).rejects.toThrow();
+  });
+
   it('Should be able to create a new user', async () => {
     const { createUserService } = makeSut();
 
