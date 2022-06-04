@@ -1,6 +1,6 @@
 import AppError from '@shared/errors/AppError';
 import FakeRefreshTokensRepository from '../repositories/fakes/FakeRefreshTokensRepository';
-import FakeUsersRepository from '../repositories/fakes/FakeUsersRepository';
+import FakeUsersRepository from '../repositories/fakes/FakeRemoveUserRepository';
 
 import InvalidateRefreshTokenService from './InvalidateRefreshTokenService';
 import AuthenticateUserService from './AuthenticateUserService';

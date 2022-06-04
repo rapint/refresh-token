@@ -3,16 +3,16 @@ import { FakeEncrypterProvider } from '@shared/container/encrypterProvider/fakes
 import { IEncrypter } from '@shared/container/encrypterProvider/protocols/IEncrypt';
 import { FakeGenerateHashProvider } from '@shared/container/generateHashProvider/fakes/FakeGenerateHashProvider';
 import { IGenerateHashProvider } from '@shared/container/generateHashProvider/protocols/IGenerateHashProvider';
-import FakeUsersRepository from '../repositories/fakes/FakeUsersRepository';
-import AuthenticateUserService from './AuthenticateUserService';
 import FakeHashProvider from '../providers/HashProvider/fakes/FakeHashProvider';
-import IUsersRepository from '../repositories/IUsersRepository';
+import { IFindUserByEmailRepository } from '../repositories';
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
 import IRefreshTokensRepository from '../repositories/IRefreshTokensRepository';
 import FakeRefreshTokensRepository from '../repositories/fakes/FakeRefreshTokensRepository';
+import { FakeFindUserByEmailRepository } from '../repositories/fakes';
+import AuthenticateUserService from './AuthenticateUserService';
 
 interface ISut {
-  fakeUsersRepository: IUsersRepository;
+  fakeFindUserByEmailRepository: IFindUserByEmailRepository;
   fakeHashProvider: IHashProvider;
   fakeEncrypterProvider: IEncrypter;
   fakeGenerateHashProvider: IGenerateHashProvider;
@@ -21,14 +21,14 @@ interface ISut {
 }
 
 const makeSut = (): ISut => {
-  const fakeUsersRepository = new FakeUsersRepository();
+  const fakeFindUserByEmailRepository = new FakeFindUserByEmailRepository();
   const fakeHashProvider = new FakeHashProvider();
   const fakeEncrypterProvider = new FakeEncrypterProvider();
   const fakeGenerateHashProvider = new FakeGenerateHashProvider();
   const fakeRefreshTokensRepository = new FakeRefreshTokensRepository();
 
   const authenticateUser = new AuthenticateUserService(
-    fakeUsersRepository,
+    fakeFindUserByEmailRepository,
     fakeHashProvider,
     fakeEncrypterProvider,
     fakeGenerateHashProvider,
@@ -37,7 +37,7 @@ const makeSut = (): ISut => {
 
   return {
     authenticateUser,
-    fakeUsersRepository,
+    fakeFindUserByEmailRepository,
     fakeHashProvider,
     fakeEncrypterProvider,
     fakeGenerateHashProvider,
@@ -51,9 +51,9 @@ jest.mock('@config/refreshToken', () => {
 
 describe('AuthenticateUser', () => {
   it('Should call findByEmail with corrects values', async () => {
-    const { fakeUsersRepository, authenticateUser } = makeSut();
+    const { fakeFindUserByEmailRepository, authenticateUser } = makeSut();
 
-    const spyFindByEmail = jest.spyOn(fakeUsersRepository, 'findByEmail');
+    const spyFindByEmail = jest.spyOn(fakeFindUserByEmailRepository, 'find');
 
     await authenticateUser.execute({
       email: 'any@mail.com',
@@ -64,10 +64,10 @@ describe('AuthenticateUser', () => {
   });
 
   it('Should throw error if findByEmail throws', async () => {
-    const { fakeUsersRepository, authenticateUser } = makeSut();
+    const { fakeFindUserByEmailRepository, authenticateUser } = makeSut();
 
     jest
-      .spyOn(fakeUsersRepository, 'findByEmail')
+      .spyOn(fakeFindUserByEmailRepository, 'find')
       .mockImplementationOnce(() => {
         throw new Error();
       });
@@ -81,10 +81,10 @@ describe('AuthenticateUser', () => {
   });
 
   it('Should throw error if findByEmail return undefined', async () => {
-    const { fakeUsersRepository, authenticateUser } = makeSut();
+    const { fakeFindUserByEmailRepository, authenticateUser } = makeSut();
 
     jest
-      .spyOn(fakeUsersRepository, 'findByEmail')
+      .spyOn(fakeFindUserByEmailRepository, 'find')
       .mockReturnValueOnce(new Promise(resolve => resolve(undefined)));
 
     const promise = authenticateUser.execute({

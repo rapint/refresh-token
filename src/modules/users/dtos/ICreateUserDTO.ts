@@ -1,4 +1,4 @@
-export default interface ICreateUserDTO {
+export interface ICreateUserDTO {
   email: string;
   name: string;
   password: string;

@@ -3,7 +3,7 @@ import AppError from '@shared/errors/AppError';
 
 import { IEncrypter } from '@shared/container/encrypterProvider/protocols/IEncrypt';
 import { IGenerateHashProvider } from '@shared/container/generateHashProvider/protocols/IGenerateHashProvider';
-import IUsersRepository from '../repositories/IUsersRepository';
+import { IFindUserByEmailRepository } from '../repositories';
 
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
 import { IUserModel } from '../models/IUserModel';
@@ -22,7 +22,7 @@ interface IResponse {
 
 class AuthenticateUserService {
   constructor(
-    private readonly usersRepository: IUsersRepository,
+    private readonly findUserByEmailRepository: IFindUserByEmailRepository,
     private readonly hashProvider: IHashProvider,
     private readonly encrypter: IEncrypter,
     private readonly generateHashProvider: IGenerateHashProvider,
@@ -30,7 +30,7 @@ class AuthenticateUserService {
   ) {}
 
   public async execute({ email, password }: IRequest): Promise<IResponse> {
-    const user = await this.usersRepository.findByEmail(email);
+    const user = await this.findUserByEmailRepository.find(email);
 
     if (!user) {
       throw new AppError('Combinação de email/senha incorreta.', 401);

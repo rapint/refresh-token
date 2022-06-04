@@ -1,6 +1,9 @@
 import AppError from '@shared/errors/AppError';
 
-import IUsersRepository from '../repositories/IUsersRepository';
+import {
+  IFindUserByEmailRepository,
+  ICreateUserRepository,
+} from '../repositories';
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
 import { IUserModel } from '../models/IUserModel';
 
@@ -10,9 +13,10 @@ interface IRequest {
   name: string;
 }
 
-class CreateUserService {
+export class CreateUserService {
   constructor(
-    private readonly usersRepository: IUsersRepository,
+    private readonly findUserByEmailRepository: IFindUserByEmailRepository,
+    private readonly createUserRepository: ICreateUserRepository,
     private readonly hashProvider: IHashProvider,
   ) {}
 
@@ -21,7 +25,7 @@ class CreateUserService {
     password,
     name,
   }: IRequest): Promise<IUserModel> {
-    const checkUserExists = await this.usersRepository.findByEmail(email);
+    const checkUserExists = await this.findUserByEmailRepository.find(email);
 
     if (checkUserExists) {
       throw new AppError('Email já cadastrado no sistema!', 409);
@@ -29,7 +33,7 @@ class CreateUserService {
 
     const hashedPassword = await this.hashProvider.generateHash(password);
 
-    const user = await this.usersRepository.create({
+    const user = await this.createUserRepository.create({
       email,
       name,
       password: hashedPassword,
@@ -38,5 +42,3 @@ class CreateUserService {
     return user;
   }
 }
-
-export default CreateUserService;
