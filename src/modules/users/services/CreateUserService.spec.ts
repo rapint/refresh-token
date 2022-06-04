@@ -147,6 +147,24 @@ describe('CreateUser', () => {
     });
   });
 
+  it('Should throw create if throws', async () => {
+    const { createUserService, fakeCreateUserRepository } = makeSut();
+
+    jest
+      .spyOn(fakeCreateUserRepository, 'create')
+      .mockImplementationOnce(() => {
+        throw new Error();
+      });
+
+    const promise = createUserService.execute({
+      name: 'any_name',
+      email: 'any@email.com',
+      password: '12345678',
+    });
+
+    await expect(promise).rejects.toThrow();
+  });
+
   it('Should be able to create a new user', async () => {
     const { createUserService } = makeSut();
 
