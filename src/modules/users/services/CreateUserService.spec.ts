@@ -129,6 +129,24 @@ describe('CreateUser', () => {
     await expect(promise).rejects.toThrow();
   });
 
+  it('Should call create with corrects values', async () => {
+    const { createUserService, fakeCreateUserRepository } = makeSut();
+
+    const spyCreate = jest.spyOn(fakeCreateUserRepository, 'create');
+
+    await createUserService.execute({
+      name: 'any_name',
+      email: 'any@email.com',
+      password: '12345678',
+    });
+
+    expect(spyCreate).toHaveBeenCalledWith({
+      name: 'any_name',
+      email: 'any@email.com',
+      password: 'any_hash',
+    });
+  });
+
   it('Should be able to create a new user', async () => {
     const { createUserService } = makeSut();
 
