@@ -1,3 +1,4 @@
+import AppError from '@shared/errors/AppError';
 import { IFindUserByIdRepository } from '../repositories';
 import { FakeFindUserByIdRepository } from '../repositories/fakes';
 import { ShowUserService } from './ShowUserService';
@@ -31,7 +32,7 @@ describe('ShowUserService', () => {
     expect(spyFind).toHaveBeenCalledWith(userId);
   });
 
-  it('Should throw FindUserByIdRepository throws', async () => {
+  it('Should throw if FindUserByIdRepository throws', async () => {
     const { showUserService, fakeFindUserByIdRepository } = makeSut();
 
     jest
@@ -43,6 +44,20 @@ describe('ShowUserService', () => {
     const promise = showUserService.execute(userId);
 
     await expect(promise).rejects.toThrow();
+  });
+
+  it('Should throw if FindUserByIdRepository return undefined', async () => {
+    const { showUserService, fakeFindUserByIdRepository } = makeSut();
+
+    jest
+      .spyOn(fakeFindUserByIdRepository, 'find')
+      .mockImplementationOnce(() => new Promise(resolve => resolve(undefined)));
+
+    const promise = showUserService.execute(userId);
+
+    await expect(promise).rejects.toEqual(
+      new AppError('Usuário não foi encontrado.', 404),
+    );
   });
 
   it('Should be able to show a user', async () => {
