@@ -1,33 +1,42 @@
-import AppError from '@shared/errors/AppError';
-import FakeUsersRepository from '../repositories/fakes/FakeRemoveUserRepository';
-import ShowUserService from './ShowUserService';
+import { IFindUserByIdRepository } from '../repositories';
+import { FakeFindUserByIdRepository } from '../repositories/fakes';
+import { ShowUserService } from './ShowUserService';
 
-let fakeUsersRepository: FakeUsersRepository;
-let showUserService: ShowUserService;
+interface ISut {
+  fakeFindUserByIdRepository: IFindUserByIdRepository;
+  showUserService: ShowUserService;
+}
+
+const makeSut = (): ISut => {
+  const fakeFindUserByIdRepository = new FakeFindUserByIdRepository();
+
+  const showUserService = new ShowUserService(fakeFindUserByIdRepository);
+
+  return {
+    showUserService,
+    fakeFindUserByIdRepository,
+  };
+};
+
+const userId = 'any_id';
 
 describe('ShowUserService', () => {
-  beforeEach(() => {
-    fakeUsersRepository = new FakeUsersRepository();
-    showUserService = new ShowUserService(fakeUsersRepository);
+  it('Should call FindUserByIdRepository with corrects values', async () => {
+    const { showUserService, fakeFindUserByIdRepository } = makeSut();
+
+    const spyFind = jest.spyOn(fakeFindUserByIdRepository, 'find');
+
+    await showUserService.execute(userId);
+
+    expect(spyFind).toHaveBeenCalledWith(userId);
   });
 
   it('Should be able to show a user', async () => {
-    const user = await fakeUsersRepository.create({
-      name: 'José',
-      email: 'jose@email.com',
-      password: '12345678',
-    });
+    const { showUserService } = makeSut();
 
-    const showUser = jest.spyOn(fakeUsersRepository, 'findById');
+    const user = await showUserService.execute(userId);
 
-    await showUserService.execute(user.id);
-
-    expect(showUser).toHaveBeenCalledWith(user.id);
-  });
-
-  it('Should not be able to show a non existing user', async () => {
-    expect(showUserService.execute('non-existing-user')).rejects.toBeInstanceOf(
-      AppError,
-    );
+    expect(user).toHaveProperty('id');
+    expect(user.id).toBe('any_id');
   });
 });

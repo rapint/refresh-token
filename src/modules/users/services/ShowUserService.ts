@@ -1,25 +1,20 @@
 import AppError from '@shared/errors/AppError';
-import { injectable, inject } from 'tsyringe';
 import { IUserModel } from '../models/IUserModel';
 
-import IUsersRepository from '../repositories/IUsersRepository';
+import { IFindUserByIdRepository } from '../repositories';
 
-@injectable()
-class ShowUserService {
+export class ShowUserService {
   constructor(
-    @inject('UsersRepository')
-    private usersRepository: IUsersRepository,
+    private readonly findUserByIdRepository: IFindUserByIdRepository,
   ) {}
 
-  public async execute(userId: string): Promise<IUserModel | undefined> {
-    const user = await this.usersRepository.findById(userId);
+  public async execute(userId: string): Promise<IUserModel> {
+    const user = await this.findUserByIdRepository.find(userId);
 
     if (!user) {
-      throw new AppError('Usuário não foi encontrado!', 404);
+      throw new AppError('Usuário não foi encontrado.', 404);
     }
 
     return user;
   }
 }
-
-export default ShowUserService;
