@@ -1,3 +1,4 @@
+import AppError from '@shared/errors/AppError';
 import {
   IFindUserByIdRepository,
   IRemoveUserRepository,
@@ -53,6 +54,20 @@ describe('DeleteUserService', () => {
     const promise = deleteUserService.execute('user_id');
 
     await expect(promise).rejects.toThrow();
+  });
+
+  it('Should throw if FindUserByIdRepository return undefined', async () => {
+    const { deleteUserService, fakeFindUserByIdRepository } = makeSut();
+
+    jest
+      .spyOn(fakeFindUserByIdRepository, 'find')
+      .mockImplementationOnce(() => new Promise(resolve => resolve(undefined)));
+
+    const promise = deleteUserService.execute('user_id');
+
+    await expect(promise).rejects.toEqual(
+      new AppError('Usuário não encontrado.', 404),
+    );
   });
 
   it('Should be able to delete a user', async () => {

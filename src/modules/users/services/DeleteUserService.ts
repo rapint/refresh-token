@@ -15,7 +15,7 @@ export class DeleteUserService {
     const user = await this.findUserByIdRepository.find(userId);
 
     if (!user) {
-      throw new AppError('Usuário não encontrado no sistema', 404);
+      throw new AppError('Usuário não encontrado.', 404);
     }
 
     await this.removeUserRepository.remove(user);
