@@ -28,7 +28,7 @@ export class CreateUserService {
     const checkUserExists = await this.findUserByEmailRepository.find(email);
 
     if (checkUserExists) {
-      throw new AppError('Email já cadastrado no sistema!', 409);
+      throw new AppError('Email já cadastrado no sistema.', 409);
     }
 
     const hashedPassword = await this.hashProvider.generateHash(password);

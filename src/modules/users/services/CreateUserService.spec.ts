@@ -1,3 +1,4 @@
+import AppError from '@shared/errors/AppError';
 import {
   FakeCreateUserRepository,
   FakeFindUserByEmailRepository,
@@ -69,6 +70,33 @@ describe('CreateUser', () => {
     });
 
     await expect(promise).rejects.toThrow();
+  });
+
+  it('Should throw error if findByEmail return user', async () => {
+    const { fakeFindUserByEmailRepository, createUserService } = makeSut();
+
+    jest.spyOn(fakeFindUserByEmailRepository, 'find').mockReturnValueOnce(
+      new Promise(resolve =>
+        resolve({
+          id: 'any_id',
+          name: 'any_name',
+          email: 'any@mail.com',
+          password: 'hashed_password',
+          createdAt: new Date('2022-01-01T00:00:00'),
+          updatedAt: new Date('2022-01-01T00:00:00'),
+        }),
+      ),
+    );
+
+    const promise = createUserService.execute({
+      name: 'any_name',
+      email: 'any@email.com',
+      password: '12345678',
+    });
+
+    await expect(promise).rejects.toEqual(
+      new AppError('Email já cadastrado no sistema.', 409),
+    );
   });
 
   it('Should be able to create a new user', async () => {
