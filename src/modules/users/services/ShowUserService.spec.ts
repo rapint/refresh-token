@@ -31,6 +31,20 @@ describe('ShowUserService', () => {
     expect(spyFind).toHaveBeenCalledWith(userId);
   });
 
+  it('Should throw FindUserByIdRepository throws', async () => {
+    const { showUserService, fakeFindUserByIdRepository } = makeSut();
+
+    jest
+      .spyOn(fakeFindUserByIdRepository, 'find')
+      .mockImplementationOnce(() => {
+        throw new Error();
+      });
+
+    const promise = showUserService.execute(userId);
+
+    await expect(promise).rejects.toThrow();
+  });
+
   it('Should be able to show a user', async () => {
     const { showUserService } = makeSut();
 
