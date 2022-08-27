@@ -1,51 +1,28 @@
-import { injectable, inject } from 'tsyringe';
-
 import AppError from '@shared/errors/AppError';
 
-import IUsersRepository from '../repositories/IUsersRepository';
+import { IFindUserByIdRepository, ISaveUserRepository } from '../repositories';
 
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
 import { IUserModel } from '../models/IUserModel';
+import { IUpdateUserDTO } from './dtos/UpdateUserDTO';
 
-interface IRequest {
-  name: string;
-  email: string;
-  password?: string;
-  oldPassword?: string;
-  userId: string;
-}
-
-@injectable()
-class UpdateUserService {
+export class UpdateUserService {
   constructor(
-    @inject('UsersRepository')
-    private usersRepository: IUsersRepository,
-
-    @inject('HashProvider')
-    private hashProvider: IHashProvider,
+    private readonly findUserByIdRepository: IFindUserByIdRepository,
+    private readonly hashProvider: IHashProvider,
+    private readonly saveUserRepository: ISaveUserRepository,
   ) {}
 
   public async execute({
-    email,
     password,
     name,
     oldPassword,
     userId,
-  }: IRequest): Promise<IUserModel> {
-    const user = await this.usersRepository.findById(userId);
+  }: IUpdateUserDTO): Promise<IUserModel> {
+    const user = await this.findUserByIdRepository.find(userId);
 
     if (!user) {
       throw new AppError('Usuário não encontrado no sistema', 404);
-    }
-
-    const userWithUpdatedEmail = await this.usersRepository.findByEmail(email);
-
-    if (userWithUpdatedEmail && userWithUpdatedEmail.id !== userId) {
-      throw new AppError('E-mail já está em uso.', 409);
-    }
-
-    if (password && !oldPassword) {
-      throw new AppError('Precisa informar a senha antiga.', 409);
     }
 
     if (password && oldPassword) {
@@ -61,13 +38,10 @@ class UpdateUserService {
       user.password = await this.hashProvider.generateHash(password);
     }
 
-    user.email = email;
     user.name = name;
 
-    await this.usersRepository.save(user);
+    await this.saveUserRepository.save(user);
 
     return user;
   }
 }
-
-export default UpdateUserService;
